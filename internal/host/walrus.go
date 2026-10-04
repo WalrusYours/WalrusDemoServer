@@ -1,0 +1,48 @@
+package host
+
+import (
+	"context"
+	"errors"
+	"log"
+	"time"
+
+	walrus "github.com/timurcravtov/walrus/pkg/client"
+)
+
+// Engine is the part of WALRUS this server uses: push the schema, ask for recommendations.
+// *client.Client implements it; tests use a fake.
+type Engine interface {
+	PushSchema(ctx context.Context, yaml []byte, dryRun, confirmBreaking bool) (*walrus.SchemaResult, error)
+	Recommend(ctx context.Context, recommender string, req walrus.RecommendRequest) (*walrus.Response, error)
+}
+
+// SyncSchema pushes the platform's schema to the engine, retrying while the engine is still
+// starting. It returns when the push succeeded, the engine rejected the schema, or ctx ended.
+// A schema is pushed, never pulled: the platform owns it.
+func SyncSchema(ctx context.Context, e Engine, yaml []byte) error {
+	delay := time.Second
+	for {
+		res, err := e.PushSchema(ctx, yaml, false, true)
+		switch {
+		case err == nil && res.OK:
+			log.Printf("walrus: schema v%d applied", res.Version)
+			return nil
+		case err == nil:
+			log.Printf("walrus: schema rejected: %s (%d problems)", res.Message, len(res.Errors))
+			for _, is := range res.Errors {
+				log.Printf("walrus:   %s: %s", is.Path, is.Message)
+			}
+			return errSchemaRejected
+		default:
+			log.Printf("walrus: schema push failed (%v); retrying in %s", err, delay)
+		}
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(delay):
+		}
+		delay = min(delay*2, 15*time.Second)
+	}
+}
+
+var errSchemaRejected = errors.New("walrus rejected the schema")

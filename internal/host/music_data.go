@@ -1,0 +1,91 @@
+// Demo data: the song library, the starter playlists and other people's playlists.
+
+package host
+
+// catalogue is the demo's song library. Energy and valence are 0..1 audio features, the kind a
+// platform's own analysis produces; plays is the popularity the "hits" knob reads.
+var catalogue = []Track{
+	{ID: "back_in_black", Title: "Back in Black", Artist: "AC/DC", Year: 1980, Genres: []string{"rock", "hard rock"}, Energy: 0.92, Valence: 0.65, Seconds: 255, Plays: 1500},
+	{ID: "thunderstruck", Title: "Thunderstruck", Artist: "AC/DC", Year: 1990, Genres: []string{"rock", "hard rock"}, Energy: 0.95, Valence: 0.45, Seconds: 292, Plays: 1300},
+	{ID: "highway_to_hell", Title: "Highway to Hell", Artist: "AC/DC", Year: 1979, Genres: []string{"rock", "hard rock"}, Energy: 0.9, Valence: 0.7, Seconds: 208, Plays: 1100},
+	{ID: "sweet_child", Title: "Sweet Child o' Mine", Artist: "Guns N' Roses", Year: 1987, Genres: []string{"rock", "hard rock"}, Energy: 0.85, Valence: 0.6, Seconds: 356, Plays: 1700},
+	{ID: "livin_prayer", Title: "Livin' on a Prayer", Artist: "Bon Jovi", Year: 1986, Genres: []string{"rock", "glam rock"}, Energy: 0.88, Valence: 0.75, Seconds: 249, Plays: 1400},
+	{ID: "dont_stop", Title: "Don't Stop Believin'", Artist: "Journey", Year: 1981, Genres: []string{"rock", "classic rock"}, Energy: 0.72, Valence: 0.65, Seconds: 251, Plays: 1800},
+	{ID: "bohemian", Title: "Bohemian Rhapsody", Artist: "Queen", Year: 1975, Genres: []string{"rock", "classic rock"}, Energy: 0.6, Valence: 0.4, Seconds: 355, Plays: 2100},
+	{ID: "we_will_rock_you", Title: "We Will Rock You", Artist: "Queen", Year: 1977, Genres: []string{"rock", "classic rock"}, Energy: 0.7, Valence: 0.55, Seconds: 122, Plays: 1300},
+	{ID: "hotel_california", Title: "Hotel California", Artist: "Eagles", Year: 1976, Genres: []string{"rock", "classic rock", "folk rock"}, Energy: 0.45, Valence: 0.35, Seconds: 391, Plays: 1500},
+	{ID: "stairway", Title: "Stairway to Heaven", Artist: "Led Zeppelin", Year: 1971, Genres: []string{"rock", "classic rock"}, Energy: 0.4, Valence: 0.3, Seconds: 482, Plays: 1200},
+	{ID: "whole_lotta_love", Title: "Whole Lotta Love", Artist: "Led Zeppelin", Year: 1969, Genres: []string{"rock", "hard rock"}, Energy: 0.85, Valence: 0.45, Seconds: 333, Plays: 900},
+	{ID: "smoke_water", Title: "Smoke on the Water", Artist: "Deep Purple", Year: 1972, Genres: []string{"rock", "hard rock"}, Energy: 0.75, Valence: 0.5, Seconds: 340, Plays: 800},
+	{ID: "paranoid", Title: "Paranoid", Artist: "Black Sabbath", Year: 1970, Genres: []string{"rock", "metal"}, Energy: 0.9, Valence: 0.35, Seconds: 168, Plays: 700},
+	{ID: "enter_sandman", Title: "Enter Sandman", Artist: "Metallica", Year: 1991, Genres: []string{"metal", "hard rock"}, Energy: 0.9, Valence: 0.3, Seconds: 331, Plays: 1500},
+	{ID: "crazy_train", Title: "Crazy Train", Artist: "Ozzy Osbourne", Year: 1980, Genres: []string{"rock", "metal", "hard rock"}, Energy: 0.85, Valence: 0.6, Seconds: 292, Plays: 600},
+	{ID: "born_to_run", Title: "Born to Run", Artist: "Bruce Springsteen", Year: 1975, Genres: []string{"rock", "heartland rock"}, Energy: 0.75, Valence: 0.6, Seconds: 270, Plays: 700},
+	{ID: "teen_spirit", Title: "Smells Like Teen Spirit", Artist: "Nirvana", Year: 1991, Genres: []string{"rock", "grunge", "alternative"}, Energy: 0.91, Valence: 0.35, Seconds: 301, Plays: 1600},
+	{ID: "under_bridge", Title: "Under the Bridge", Artist: "Red Hot Chili Peppers", Year: 1991, Genres: []string{"rock", "alternative"}, Energy: 0.5, Valence: 0.4, Seconds: 264, Plays: 1000},
+	{ID: "basket_case", Title: "Basket Case", Artist: "Green Day", Year: 1994, Genres: []string{"punk", "rock"}, Energy: 0.88, Valence: 0.7, Seconds: 181, Plays: 900},
+	{ID: "wonderwall", Title: "Wonderwall", Artist: "Oasis", Year: 1995, Genres: []string{"rock", "britpop"}, Energy: 0.55, Valence: 0.45, Seconds: 258, Plays: 1700},
+	{ID: "seven_nation", Title: "Seven Nation Army", Artist: "The White Stripes", Year: 2003, Genres: []string{"rock", "indie"}, Energy: 0.7, Valence: 0.45, Seconds: 232, Plays: 1500},
+	{ID: "mr_brightside", Title: "Mr. Brightside", Artist: "The Killers", Year: 2003, Genres: []string{"rock", "indie"}, Energy: 0.9, Valence: 0.5, Seconds: 223, Plays: 1900},
+	{ID: "do_i_wanna_know", Title: "Do I Wanna Know?", Artist: "Arctic Monkeys", Year: 2013, Genres: []string{"indie", "rock", "alternative"}, Energy: 0.6, Valence: 0.4, Seconds: 272, Plays: 1700},
+	{ID: "r_u_mine", Title: "R U Mine?", Artist: "Arctic Monkeys", Year: 2012, Genres: []string{"indie", "rock"}, Energy: 0.85, Valence: 0.55, Seconds: 201, Plays: 800},
+	{ID: "take_me_out", Title: "Take Me Out", Artist: "Franz Ferdinand", Year: 2004, Genres: []string{"indie", "rock"}, Energy: 0.85, Valence: 0.6, Seconds: 237, Plays: 600},
+	{ID: "last_nite", Title: "Last Nite", Artist: "The Strokes", Year: 2001, Genres: []string{"indie", "rock"}, Energy: 0.75, Valence: 0.65, Seconds: 193, Plays: 700},
+	{ID: "float_on", Title: "Float On", Artist: "Modest Mouse", Year: 2004, Genres: []string{"indie", "rock"}, Energy: 0.7, Valence: 0.7, Seconds: 208, Plays: 500},
+	{ID: "take_on_me", Title: "Take on Me", Artist: "a-ha", Year: 1985, Genres: []string{"pop", "synth-pop"}, Energy: 0.8, Valence: 0.9, Seconds: 225, Plays: 1900},
+	{ID: "blinding_lights", Title: "Blinding Lights", Artist: "The Weeknd", Year: 2019, Genres: []string{"pop", "synth-pop"}, Energy: 0.8, Valence: 0.33, Seconds: 200, Plays: 4000},
+	{ID: "levitating", Title: "Levitating", Artist: "Dua Lipa", Year: 2020, Genres: []string{"pop", "dance"}, Energy: 0.83, Valence: 0.92, Seconds: 203, Plays: 2500},
+	{ID: "shake_it_off", Title: "Shake It Off", Artist: "Taylor Swift", Year: 2014, Genres: []string{"pop"}, Energy: 0.8, Valence: 0.94, Seconds: 219, Plays: 2200},
+	{ID: "uptown_funk", Title: "Uptown Funk", Artist: "Mark Ronson", Year: 2014, Genres: []string{"pop", "funk"}, Energy: 0.85, Valence: 0.93, Seconds: 270, Plays: 2300},
+	{ID: "dancing_queen", Title: "Dancing Queen", Artist: "ABBA", Year: 1976, Genres: []string{"pop", "disco"}, Energy: 0.78, Valence: 0.85, Seconds: 231, Plays: 1500},
+	{ID: "strobe", Title: "Strobe", Artist: "deadmau5", Year: 2009, Genres: []string{"electronic", "progressive house"}, Energy: 0.55, Valence: 0.3, Seconds: 637, Plays: 300},
+	{ID: "around_world", Title: "Around the World", Artist: "Daft Punk", Year: 1997, Genres: []string{"electronic", "house"}, Energy: 0.8, Valence: 0.7, Seconds: 429, Plays: 500},
+	{ID: "one_more_time", Title: "One More Time", Artist: "Daft Punk", Year: 2000, Genres: []string{"electronic", "house", "dance"}, Energy: 0.85, Valence: 0.9, Seconds: 320, Plays: 900},
+	{ID: "sunset_lover", Title: "Sunset Lover", Artist: "Petit Biscuit", Year: 2015, Genres: []string{"electronic", "chill"}, Energy: 0.45, Valence: 0.5, Seconds: 237, Plays: 700},
+	{ID: "weightless", Title: "Weightless", Artist: "Marconi Union", Year: 2011, Genres: []string{"ambient"}, Energy: 0.1, Valence: 0.1, Seconds: 480, Plays: 150},
+	{ID: "the_xx_intro", Title: "Intro", Artist: "The xx", Year: 2009, Genres: []string{"indie", "chill"}, Energy: 0.3, Valence: 0.3, Seconds: 127, Plays: 600},
+	{ID: "holocene", Title: "Holocene", Artist: "Bon Iver", Year: 2011, Genres: []string{"indie folk", "folk"}, Energy: 0.25, Valence: 0.3, Seconds: 337, Plays: 350},
+	{ID: "skinny_love", Title: "Skinny Love", Artist: "Bon Iver", Year: 2007, Genres: []string{"indie folk", "folk"}, Energy: 0.3, Valence: 0.2, Seconds: 238, Plays: 700},
+	{ID: "fast_car", Title: "Fast Car", Artist: "Tracy Chapman", Year: 1988, Genres: []string{"folk", "acoustic"}, Energy: 0.35, Valence: 0.35, Seconds: 296, Plays: 900},
+	{ID: "mad_world", Title: "Mad World", Artist: "Gary Jules", Year: 2001, Genres: []string{"alternative", "acoustic"}, Energy: 0.15, Valence: 0.1, Seconds: 191, Plays: 800},
+	{ID: "clair_de_lune", Title: "Clair de Lune", Artist: "Claude Debussy", Year: 1905, Genres: []string{"classical"}, Energy: 0.1, Valence: 0.3, Seconds: 300, Plays: 500},
+	{ID: "gymnopedie", Title: "Gymnopédie No. 1", Artist: "Erik Satie", Year: 1888, Genres: []string{"classical", "ambient"}, Energy: 0.05, Valence: 0.3, Seconds: 190, Plays: 400},
+	{ID: "country_roads", Title: "Take Me Home, Country Roads", Artist: "John Denver", Year: 1971, Genres: []string{"folk", "country"}, Energy: 0.45, Valence: 0.7, Seconds: 190, Plays: 1500},
+	{ID: "ring_of_fire", Title: "Ring of Fire", Artist: "Johnny Cash", Year: 1963, Genres: []string{"country", "folk"}, Energy: 0.5, Valence: 0.7, Seconds: 158, Plays: 700},
+	{ID: "jolene", Title: "Jolene", Artist: "Dolly Parton", Year: 1973, Genres: []string{"country"}, Energy: 0.5, Valence: 0.5, Seconds: 162, Plays: 800},
+}
+
+// starterPlaylists is what a new user starts with; every user gets their own copy.
+var starterPlaylists = []Playlist{
+	{ID: "rock_anthems", Name: "Rock Anthems", Description: "Loud guitars, big choruses.", TrackIDs: []string{"back_in_black", "thunderstruck", "sweet_child", "livin_prayer", "dont_stop", "bohemian", "whole_lotta_love", "smoke_water", "teen_spirit", "mr_brightside", "take_on_me"}},
+	{ID: "quiet_evenings", Name: "Quiet Evenings", Description: "Slow down.", TrackIDs: []string{"holocene", "skinny_love", "fast_car", "weightless", "the_xx_intro", "clair_de_lune", "gymnopedie", "mad_world"}},
+	{ID: "workout", Name: "Workout", Description: "Keep moving.", TrackIDs: []string{"thunderstruck", "enter_sandman", "blinding_lights", "basket_case", "levitating", "one_more_time", "mr_brightside", "uptown_funk", "crazy_train", "around_world"}},
+	{ID: "road_trip", Name: "Road Trip", Description: "Windows down.", TrackIDs: []string{"hotel_california", "born_to_run", "country_roads", "dont_stop", "wonderwall", "seven_nation", "under_bridge", "ring_of_fire"}},
+	{ID: "indie_nights", Name: "Indie Nights", Description: "Small venues, loud nights.", TrackIDs: []string{"do_i_wanna_know", "r_u_mine", "take_me_out", "last_nite", "float_on", "seven_nation", "mr_brightside", "the_xx_intro"}},
+	{ID: "throwback_pop", Name: "Throwback Pop", Description: "Sing along.", TrackIDs: []string{"dancing_queen", "take_on_me", "uptown_funk", "shake_it_off", "livin_prayer"}},
+}
+
+// communityPlaylists are other people's playlists. They are never shown; they are what the platform
+// would report to WALRUS as "added to a playlist" events, so songs that keep company can be learnt.
+var communityPlaylists = [][]string{
+	[]string{"back_in_black", "thunderstruck", "highway_to_hell", "crazy_train", "paranoid", "enter_sandman"},
+	[]string{"back_in_black", "highway_to_hell", "sweet_child", "whole_lotta_love", "smoke_water", "stairway"},
+	[]string{"sweet_child", "livin_prayer", "dont_stop", "we_will_rock_you", "bohemian", "teen_spirit"},
+	[]string{"stairway", "hotel_california", "whole_lotta_love", "bohemian", "smoke_water"},
+	[]string{"teen_spirit", "mr_brightside", "under_bridge", "basket_case", "wonderwall", "last_nite"},
+	[]string{"seven_nation", "mr_brightside", "r_u_mine", "take_me_out", "last_nite", "do_i_wanna_know"},
+	[]string{"thunderstruck", "enter_sandman", "paranoid", "crazy_train", "back_in_black"},
+	[]string{"dont_stop", "livin_prayer", "take_on_me", "dancing_queen", "sweet_child"},
+	[]string{"holocene", "skinny_love", "fast_car", "mad_world", "the_xx_intro"},
+	[]string{"holocene", "skinny_love", "fast_car", "clair_de_lune", "gymnopedie", "weightless"},
+	[]string{"mad_world", "skinny_love", "holocene", "sunset_lover", "the_xx_intro"},
+	[]string{"fast_car", "country_roads", "jolene", "ring_of_fire", "skinny_love"},
+	[]string{"weightless", "clair_de_lune", "gymnopedie", "sunset_lover", "mad_world"},
+	[]string{"sunset_lover", "the_xx_intro", "holocene", "weightless", "fast_car"},
+	[]string{"blinding_lights", "levitating", "shake_it_off", "uptown_funk", "one_more_time"},
+	[]string{"hotel_california", "born_to_run", "dont_stop", "wonderwall", "country_roads"},
+	[]string{"back_in_black", "thunderstruck", "smoke_water", "whole_lotta_love", "highway_to_hell", "sweet_child", "teen_spirit"},
+	[]string{"do_i_wanna_know", "r_u_mine", "the_xx_intro", "seven_nation"},
+	[]string{"strobe", "around_world", "one_more_time", "blinding_lights"},
+	[]string{"bohemian", "we_will_rock_you", "dont_stop", "livin_prayer", "back_in_black"},
+}
