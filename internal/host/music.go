@@ -35,6 +35,8 @@ type Playlist struct {
 	TrackIDs    []string `json:"trackIds"`
 }
 
+var catalogue = slices.Concat(coreTracks, moreTracks)
+
 var trackByID = func() map[string]Track {
 	m := make(map[string]Track, len(catalogue))
 	for _, t := range catalogue {

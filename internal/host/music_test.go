@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	walrus "github.com/timurcravtov/walrus/pkg/client"
+	"github.com/timurcravtov/demo-host-server/internal/walrus"
 )
 
 // fakeEngine records what the host sent and answers with a fixed list.
@@ -21,7 +21,7 @@ type fakeEngine struct {
 	err   error
 }
 
-func (f *fakeEngine) PushSchema(context.Context, []byte, bool, bool) (*walrus.SchemaResult, error) {
+func (f *fakeEngine) PushSchema(context.Context, []byte, bool) (*walrus.SchemaResult, error) {
 	return &walrus.SchemaResult{OK: true, Version: 1}, nil
 }
 
@@ -274,6 +274,11 @@ func TestSyncSchemaRetriesUntilTheEngineIsUp(t *testing.T) {
 		t.Fatalf("a rejected schema is final: err = %v after %d pushes", err, rejected.calls)
 	}
 
+	denied := &flakyPush{err: &walrus.Error{Status: 401, Code: "unauthorized", Message: "wrong key"}}
+	if err := SyncSchema(ctx, denied, nil); !walrus.IsCode(err, "unauthorized") || denied.calls != 1 {
+		t.Fatalf("a wrong key is final: err = %v after %d pushes", err, denied.calls)
+	}
+
 	stopped, stop := context.WithCancel(context.Background())
 	stop()
 	if err := SyncSchema(stopped, &flakyPush{failures: 99}, nil); !errors.Is(err, context.Canceled) {
@@ -285,11 +290,15 @@ type flakyPush struct {
 	fakeEngine
 	failures int
 	reject   bool
+	err      error
 	calls    int
 }
 
-func (f *flakyPush) PushSchema(context.Context, []byte, bool, bool) (*walrus.SchemaResult, error) {
+func (f *flakyPush) PushSchema(context.Context, []byte, bool) (*walrus.SchemaResult, error) {
 	f.calls++
+	if f.err != nil {
+		return nil, f.err
+	}
 	if f.reject {
 		return &walrus.SchemaResult{OK: false, Message: "bad", Errors: []walrus.Issue{{Path: "a", Message: "b"}}}, nil
 	}

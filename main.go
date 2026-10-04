@@ -18,7 +18,8 @@ import (
 	"time"
 
 	"github.com/timurcravtov/demo-host-server/internal/host"
-	"github.com/timurcravtov/walrus/pkg/client"
+	"github.com/timurcravtov/demo-host-server/internal/walrus"
+	"github.com/timurcravtov/demo-host-server/schema"
 )
 
 func main() {
@@ -28,9 +29,9 @@ func main() {
 
 	var opts []host.Option
 	if url := os.Getenv("WALRUS_URL"); url != "" {
-		engine := client.New(url, os.Getenv("WALRUS_KEY"))
+		engine := walrus.New(url, os.Getenv("WALRUS_KEY"))
 		opts = append(opts, host.WithEngine(engine))
-		yaml, err := loadSchema()
+		yaml, err := schema.Load()
 		if err != nil {
 			log.Fatalf("read schema: %v", err)
 		}

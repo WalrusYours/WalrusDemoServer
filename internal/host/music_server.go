@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	walrus "github.com/timurcravtov/walrus/pkg/client"
+	"github.com/timurcravtov/demo-host-server/internal/walrus"
 )
 
 // The music endpoints the client's HostApi expects (src/api/http.ts).

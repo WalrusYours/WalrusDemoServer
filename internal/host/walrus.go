@@ -6,13 +6,13 @@ import (
 	"log"
 	"time"
 
-	walrus "github.com/timurcravtov/walrus/pkg/client"
+	"github.com/timurcravtov/demo-host-server/internal/walrus"
 )
 
 // Engine is the part of WALRUS this server uses: push the schema, ask for recommendations.
 // *client.Client implements it; tests use a fake.
 type Engine interface {
-	PushSchema(ctx context.Context, yaml []byte, dryRun, confirmBreaking bool) (*walrus.SchemaResult, error)
+	PushSchema(ctx context.Context, yaml []byte, confirmBreaking bool) (*walrus.SchemaResult, error)
 	Recommend(ctx context.Context, recommender string, req walrus.RecommendRequest) (*walrus.Response, error)
 }
 
@@ -22,7 +22,7 @@ type Engine interface {
 func SyncSchema(ctx context.Context, e Engine, yaml []byte) error {
 	delay := time.Second
 	for {
-		res, err := e.PushSchema(ctx, yaml, false, true)
+		res, err := e.PushSchema(ctx, yaml, true)
 		switch {
 		case err == nil && res.OK:
 			log.Printf("walrus: schema v%d applied", res.Version)
@@ -33,6 +33,9 @@ func SyncSchema(ctx context.Context, e Engine, yaml []byte) error {
 				log.Printf("walrus:   %s: %s", is.Path, is.Message)
 			}
 			return errSchemaRejected
+		case isFinal(err):
+			log.Printf("walrus: schema push refused: %v", err)
+			return err
 		default:
 			log.Printf("walrus: schema push failed (%v); retrying in %s", err, delay)
 		}
@@ -46,3 +49,9 @@ func SyncSchema(ctx context.Context, e Engine, yaml []byte) error {
 }
 
 var errSchemaRejected = errors.New("walrus rejected the schema")
+
+// isFinal reports an answer that retrying will not change, such as a wrong key.
+func isFinal(err error) bool {
+	var e *walrus.Error
+	return errors.As(err, &e) && e.Status >= 400 && e.Status < 500
+}

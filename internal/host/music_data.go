@@ -4,7 +4,7 @@ package host
 
 // catalogue is the demo's song library. Energy and valence are 0..1 audio features, the kind a
 // platform's own analysis produces; plays is the popularity the "hits" knob reads.
-var catalogue = []Track{
+var coreTracks = []Track{
 	{ID: "back_in_black", Title: "Back in Black", Artist: "AC/DC", Year: 1980, Genres: []string{"rock", "hard rock"}, Energy: 0.92, Valence: 0.65, Seconds: 255, Plays: 1500},
 	{ID: "thunderstruck", Title: "Thunderstruck", Artist: "AC/DC", Year: 1990, Genres: []string{"rock", "hard rock"}, Energy: 0.95, Valence: 0.45, Seconds: 292, Plays: 1300},
 	{ID: "highway_to_hell", Title: "Highway to Hell", Artist: "AC/DC", Year: 1979, Genres: []string{"rock", "hard rock"}, Energy: 0.9, Valence: 0.7, Seconds: 208, Plays: 1100},

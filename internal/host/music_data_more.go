@@ -1,0 +1,65 @@
+package host
+
+var moreTracks = []Track{
+	// rock and metal
+	{ID: "back_in_the_ussr", Title: "Back in the U.S.S.R.", Artist: "The Beatles", Year: 1968, Genres: []string{"rock", "classic rock"}, Energy: 0.82, Valence: 0.8, Seconds: 163, Plays: 1100},
+	{ID: "come_together", Title: "Come Together", Artist: "The Beatles", Year: 1969, Genres: []string{"rock", "classic rock"}, Energy: 0.5, Valence: 0.55, Seconds: 259, Plays: 1800},
+	{ID: "satisfaction", Title: "(I Can't Get No) Satisfaction", Artist: "The Rolling Stones", Year: 1965, Genres: []string{"rock", "classic rock"}, Energy: 0.88, Valence: 0.9, Seconds: 224, Plays: 1300},
+	{ID: "purple_haze", Title: "Purple Haze", Artist: "Jimi Hendrix", Year: 1967, Genres: []string{"rock", "psychedelic rock"}, Energy: 0.8, Valence: 0.5, Seconds: 170, Plays: 900},
+	{ID: "welcome_jungle", Title: "Welcome to the Jungle", Artist: "Guns N' Roses", Year: 1987, Genres: []string{"rock", "hard rock"}, Energy: 0.93, Valence: 0.4, Seconds: 274, Plays: 1100},
+	{ID: "ace_of_spades", Title: "Ace of Spades", Artist: "Motörhead", Year: 1980, Genres: []string{"metal", "hard rock"}, Energy: 0.97, Valence: 0.5, Seconds: 169, Plays: 700},
+	{ID: "master_puppets", Title: "Master of Puppets", Artist: "Metallica", Year: 1986, Genres: []string{"metal", "thrash metal"}, Energy: 0.94, Valence: 0.25, Seconds: 515, Plays: 1000},
+	{ID: "painkiller", Title: "Painkiller", Artist: "Judas Priest", Year: 1990, Genres: []string{"metal", "heavy metal"}, Energy: 0.98, Valence: 0.3, Seconds: 367, Plays: 400},
+	{ID: "iron_man", Title: "Iron Man", Artist: "Black Sabbath", Year: 1970, Genres: []string{"rock", "metal"}, Energy: 0.7, Valence: 0.2, Seconds: 354, Plays: 900},
+	{ID: "walk_this_way", Title: "Walk This Way", Artist: "Aerosmith", Year: 1975, Genres: []string{"rock", "hard rock"}, Energy: 0.83, Valence: 0.75, Seconds: 211, Plays: 900},
+	{ID: "creep", Title: "Creep", Artist: "Radiohead", Year: 1992, Genres: []string{"rock", "alternative"}, Energy: 0.55, Valence: 0.1, Seconds: 238, Plays: 1700},
+	{ID: "karma_police", Title: "Karma Police", Artist: "Radiohead", Year: 1997, Genres: []string{"rock", "alternative"}, Energy: 0.4, Valence: 0.3, Seconds: 261, Plays: 1100},
+	{ID: "clocks", Title: "Clocks", Artist: "Coldplay", Year: 2002, Genres: []string{"rock", "pop rock"}, Energy: 0.75, Valence: 0.25, Seconds: 307, Plays: 1900},
+	{ID: "yellow", Title: "Yellow", Artist: "Coldplay", Year: 2000, Genres: []string{"rock", "pop rock"}, Energy: 0.68, Valence: 0.3, Seconds: 267, Plays: 1700},
+	{ID: "fix_you", Title: "Fix You", Artist: "Coldplay", Year: 2005, Genres: []string{"rock", "pop rock"}, Energy: 0.42, Valence: 0.15, Seconds: 295, Plays: 1600},
+	{ID: "everlong", Title: "Everlong", Artist: "Foo Fighters", Year: 1997, Genres: []string{"rock", "alternative"}, Energy: 0.88, Valence: 0.4, Seconds: 250, Plays: 1100},
+	{ID: "zombie", Title: "Zombie", Artist: "The Cranberries", Year: 1994, Genres: []string{"rock", "alternative"}, Energy: 0.75, Valence: 0.2, Seconds: 306, Plays: 1000},
+	// indie
+	{ID: "the_less_i_know", Title: "The Less I Know the Better", Artist: "Tame Impala", Year: 2015, Genres: []string{"indie", "psychedelic pop"}, Energy: 0.75, Valence: 0.7, Seconds: 216, Plays: 1500},
+	{ID: "electric_feel", Title: "Electric Feel", Artist: "MGMT", Year: 2007, Genres: []string{"indie", "electronic"}, Energy: 0.75, Valence: 0.8, Seconds: 229, Plays: 1000},
+	{ID: "pumped_up_kicks", Title: "Pumped Up Kicks", Artist: "Foster the People", Year: 2010, Genres: []string{"indie", "pop"}, Energy: 0.72, Valence: 0.95, Seconds: 240, Plays: 1600},
+	{ID: "dog_days", Title: "Dog Days Are Over", Artist: "Florence + The Machine", Year: 2008, Genres: []string{"indie", "pop"}, Energy: 0.85, Valence: 0.65, Seconds: 252, Plays: 1000},
+	// pop and dance
+	{ID: "billie_jean", Title: "Billie Jean", Artist: "Michael Jackson", Year: 1982, Genres: []string{"pop", "funk"}, Energy: 0.65, Valence: 0.85, Seconds: 294, Plays: 2600},
+	{ID: "thriller", Title: "Thriller", Artist: "Michael Jackson", Year: 1982, Genres: []string{"pop", "funk"}, Energy: 0.6, Valence: 0.75, Seconds: 358, Plays: 2200},
+	{ID: "like_a_prayer", Title: "Like a Prayer", Artist: "Madonna", Year: 1989, Genres: []string{"pop", "dance"}, Energy: 0.78, Valence: 0.7, Seconds: 341, Plays: 1000},
+	{ID: "rolling_in_deep", Title: "Rolling in the Deep", Artist: "Adele", Year: 2010, Genres: []string{"pop", "soul"}, Energy: 0.75, Valence: 0.5, Seconds: 228, Plays: 2800},
+	{ID: "someone_like_you", Title: "Someone Like You", Artist: "Adele", Year: 2011, Genres: []string{"pop", "soul"}, Energy: 0.3, Valence: 0.15, Seconds: 285, Plays: 2400},
+	{ID: "shape_of_you", Title: "Shape of You", Artist: "Ed Sheeran", Year: 2017, Genres: []string{"pop", "dance"}, Energy: 0.65, Valence: 0.93, Seconds: 234, Plays: 3900},
+	{ID: "bad_guy", Title: "bad guy", Artist: "Billie Eilish", Year: 2019, Genres: []string{"pop", "electropop"}, Energy: 0.45, Valence: 0.55, Seconds: 194, Plays: 3300},
+	{ID: "dont_start_now", Title: "Don't Start Now", Artist: "Dua Lipa", Year: 2019, Genres: []string{"pop", "dance"}, Energy: 0.8, Valence: 0.68, Seconds: 183, Plays: 2300},
+	{ID: "happy", Title: "Happy", Artist: "Pharrell Williams", Year: 2013, Genres: []string{"pop", "soul"}, Energy: 0.82, Valence: 0.96, Seconds: 233, Plays: 2100},
+	{ID: "get_lucky", Title: "Get Lucky", Artist: "Daft Punk", Year: 2013, Genres: []string{"pop", "disco", "electronic"}, Energy: 0.8, Valence: 0.88, Seconds: 369, Plays: 1700},
+	// hip hop and r&b
+	{ID: "lose_yourself", Title: "Lose Yourself", Artist: "Eminem", Year: 2002, Genres: []string{"hip hop", "rap"}, Energy: 0.73, Valence: 0.06, Seconds: 326, Plays: 2800},
+	{ID: "sicko_mode", Title: "SICKO MODE", Artist: "Travis Scott", Year: 2018, Genres: []string{"hip hop", "rap"}, Energy: 0.73, Valence: 0.45, Seconds: 312, Plays: 2500},
+	{ID: "humble", Title: "HUMBLE.", Artist: "Kendrick Lamar", Year: 2017, Genres: []string{"hip hop", "rap"}, Energy: 0.62, Valence: 0.42, Seconds: 177, Plays: 2400},
+	{ID: "crazy_in_love", Title: "Crazy in Love", Artist: "Beyoncé", Year: 2003, Genres: []string{"r&b", "pop"}, Energy: 0.77, Valence: 0.7, Seconds: 236, Plays: 1700},
+	{ID: "no_scrubs", Title: "No Scrubs", Artist: "TLC", Year: 1999, Genres: []string{"r&b", "pop"}, Energy: 0.68, Valence: 0.73, Seconds: 214, Plays: 900},
+	// soul, funk and jazz
+	{ID: "respect", Title: "Respect", Artist: "Aretha Franklin", Year: 1967, Genres: []string{"soul", "r&b"}, Energy: 0.6, Valence: 0.97, Seconds: 147, Plays: 800},
+	{ID: "superstition", Title: "Superstition", Artist: "Stevie Wonder", Year: 1972, Genres: []string{"funk", "soul"}, Energy: 0.77, Valence: 0.85, Seconds: 266, Plays: 900},
+	{ID: "take_five", Title: "Take Five", Artist: "Dave Brubeck", Year: 1959, Genres: []string{"jazz"}, Energy: 0.35, Valence: 0.6, Seconds: 324, Plays: 600},
+	{ID: "so_what", Title: "So What", Artist: "Miles Davis", Year: 1959, Genres: []string{"jazz"}, Energy: 0.3, Valence: 0.45, Seconds: 562, Plays: 500},
+	{ID: "fly_me_moon", Title: "Fly Me to the Moon", Artist: "Frank Sinatra", Year: 1964, Genres: []string{"jazz", "swing"}, Energy: 0.4, Valence: 0.7, Seconds: 148, Plays: 800},
+	// electronic
+	{ID: "levels", Title: "Levels", Artist: "Avicii", Year: 2011, Genres: []string{"electronic", "house", "dance"}, Energy: 0.89, Valence: 0.46, Seconds: 202, Plays: 1700},
+	{ID: "titanium", Title: "Titanium", Artist: "David Guetta", Year: 2011, Genres: []string{"electronic", "dance"}, Energy: 0.79, Valence: 0.3, Seconds: 245, Plays: 1500},
+	{ID: "scary_monsters", Title: "Scary Monsters and Nice Sprites", Artist: "Skrillex", Year: 2010, Genres: []string{"electronic", "dubstep"}, Energy: 0.95, Valence: 0.35, Seconds: 243, Plays: 800},
+	{ID: "midnight_city", Title: "Midnight City", Artist: "M83", Year: 2011, Genres: []string{"electronic", "synth-pop"}, Energy: 0.8, Valence: 0.6, Seconds: 244, Plays: 1100},
+	// classical and ambient
+	{ID: "moonlight_sonata", Title: "Moonlight Sonata", Artist: "Ludwig van Beethoven", Year: 1801, Genres: []string{"classical"}, Energy: 0.1, Valence: 0.15, Seconds: 360, Plays: 600},
+	{ID: "four_seasons_spring", Title: "Spring (The Four Seasons)", Artist: "Antonio Vivaldi", Year: 1725, Genres: []string{"classical", "baroque"}, Energy: 0.55, Valence: 0.75, Seconds: 200, Plays: 500},
+	{ID: "music_for_airports", Title: "An Ending (Ascent)", Artist: "Brian Eno", Year: 1983, Genres: []string{"ambient"}, Energy: 0.08, Valence: 0.25, Seconds: 260, Plays: 250},
+	// folk, country and reggae
+	{ID: "blowin_wind", Title: "Blowin' in the Wind", Artist: "Bob Dylan", Year: 1963, Genres: []string{"folk", "acoustic"}, Energy: 0.3, Valence: 0.5, Seconds: 168, Plays: 800},
+	{ID: "mr_tambourine", Title: "Mr. Tambourine Man", Artist: "Bob Dylan", Year: 1965, Genres: []string{"folk", "folk rock"}, Energy: 0.45, Valence: 0.6, Seconds: 330, Plays: 600},
+	{ID: "redemption_song", Title: "Redemption Song", Artist: "Bob Marley", Year: 1980, Genres: []string{"reggae", "acoustic"}, Energy: 0.3, Valence: 0.5, Seconds: 227, Plays: 1100},
+	{ID: "three_little_birds", Title: "Three Little Birds", Artist: "Bob Marley", Year: 1977, Genres: []string{"reggae"}, Energy: 0.55, Valence: 0.85, Seconds: 180, Plays: 1400},
+	{ID: "despacito", Title: "Despacito", Artist: "Luis Fonsi", Year: 2017, Genres: []string{"latin", "pop"}, Energy: 0.8, Valence: 0.84, Seconds: 229, Plays: 4200},
+}
