@@ -52,6 +52,7 @@ type Store struct {
 	postByID  map[string]int
 	sessions  map[string]string     // token -> user id
 	playlists map[string][]Playlist // user id -> playlists, created on first use
+	profiles  map[string]savedProfile
 }
 
 func NewStore() *Store {
@@ -176,4 +177,39 @@ func colorFor(username string) string {
 	h := fnv.New32a()
 	h.Write([]byte(username))
 	return avatarColors[h.Sum32()%uint32(len(avatarColors))]
+}
+
+type savedProfile struct {
+	Knobs  map[string]float64
+	Preset *string
+}
+
+// Profile returns what the user saved in the Tune panel: nothing, for a user who has not.
+func (s *Store) Profile(userID string) savedProfile {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	p := s.profiles[userID]
+	knobs := make(map[string]float64, len(p.Knobs))
+	for id, v := range p.Knobs {
+		knobs[id] = v
+	}
+	return savedProfile{Knobs: knobs, Preset: p.Preset}
+}
+
+// SaveProfile merges knob values into the user's saved ones and sets the preset (nil clears it).
+func (s *Store) SaveProfile(userID string, knobs map[string]float64, preset *string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.profiles == nil {
+		s.profiles = map[string]savedProfile{}
+	}
+	p := s.profiles[userID]
+	merged := make(map[string]float64, len(p.Knobs)+len(knobs))
+	for id, v := range p.Knobs {
+		merged[id] = v
+	}
+	for id, v := range knobs {
+		merged[id] = v
+	}
+	s.profiles[userID] = savedProfile{Knobs: merged, Preset: preset}
 }

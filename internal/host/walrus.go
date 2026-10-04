@@ -14,6 +14,8 @@ import (
 type Engine interface {
 	PushSchema(ctx context.Context, yaml []byte, confirmBreaking bool) (*walrus.SchemaResult, error)
 	Recommend(ctx context.Context, recommender string, req walrus.RecommendRequest) (*walrus.Response, error)
+	Knobs(ctx context.Context, locale string) (*walrus.KnobCatalog, error)
+	SendInteractions(ctx context.Context, events []walrus.Interaction) (*walrus.IngestResult, error)
 }
 
 // SyncSchema pushes the platform's schema to the engine, retrying while the engine is still

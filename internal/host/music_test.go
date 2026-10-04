@@ -7,22 +7,71 @@ import (
 	"net/http"
 	"slices"
 	"strings"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/timurcravtov/demo-host-server/internal/walrus"
 )
 
 // fakeEngine records what the host sent and answers with a fixed list.
 type fakeEngine struct {
-	name  string
-	got   walrus.RecommendRequest
-	calls int
-	res   *walrus.Response
-	err   error
+	mu     sync.Mutex
+	events []walrus.Interaction
+	evErr  error
+
+	catalog  *walrus.KnobCatalog
+	knobsErr error
+	locale   string
+	name     string
+	got      walrus.RecommendRequest
+	calls    int
+	res      *walrus.Response
+	err      error
 }
 
 func (f *fakeEngine) PushSchema(context.Context, []byte, bool) (*walrus.SchemaResult, error) {
 	return &walrus.SchemaResult{OK: true, Version: 1}, nil
+}
+
+func (f *fakeEngine) Knobs(_ context.Context, locale string) (*walrus.KnobCatalog, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.locale = locale
+	if f.knobsErr != nil {
+		return nil, f.knobsErr
+	}
+	if f.catalog != nil {
+		return f.catalog, nil
+	}
+	return musicCatalog(), nil
+}
+
+// musicCatalog is what the engine would describe for the music schema, in part.
+func musicCatalog() *walrus.KnobCatalog {
+	playlist := []string{"playlist_add"}
+	return &walrus.KnobCatalog{
+		Knobs: []walrus.Knob{
+			{ID: "taste_vs_crowd", Kind: "slider", Label: "Taste vs crowd", Min: 0, Max: 1, Default: 0.5, Recommenders: []string{"home"}},
+			{ID: "vibe_vs_branch_out", Kind: "slider", Label: "Stick to the vibe", Low: "Stick to the vibe", High: "Branch out", Group: "Playlist suggestions", Help: "How far suggestions wander.", Min: 0, Max: 1, Default: 0.3, Recommenders: playlist},
+			{ID: "deep_cuts_vs_hits", Kind: "slider", Label: "Deep cuts or hits", Min: 0, Max: 1, Default: 0.3, Recommenders: playlist},
+			{ID: "mix_in_my_taste", Kind: "toggle", Label: "Also use my own taste", Min: 0, Max: 1, Default: 1, Recommenders: playlist},
+		},
+		Presets: []walrus.Preset{
+			{ID: "wind_down", Knobs: map[string]float64{"taste_vs_crowd": 0.2}},
+			{ID: "quiet_playlists", Knobs: map[string]float64{"vibe_vs_branch_out": 0}},
+		},
+	}
+}
+
+func (f *fakeEngine) SendInteractions(_ context.Context, events []walrus.Interaction) (*walrus.IngestResult, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.evErr != nil {
+		return nil, f.evErr
+	}
+	f.events = append(f.events, events...)
+	return &walrus.IngestResult{Accepted: len(events)}, nil
 }
 
 func (f *fakeEngine) Recommend(_ context.Context, name string, req walrus.RecommendRequest) (*walrus.Response, error) {
@@ -237,11 +286,11 @@ func TestSuggestionsFailureModes(t *testing.T) {
 			t.Errorf("limit = %d", e.got.Limit)
 		}
 	})
-	t.Run("the engine rejects a knob", func(t *testing.T) {
-		e := &fakeEngine{err: &walrus.Error{Status: 400, Code: "validation_error", Message: `knob "taste_vs_crowd" is not offered by playlist_add`}}
+	t.Run("the engine rejects the request", func(t *testing.T) {
+		e := &fakeEngine{err: &walrus.Error{Status: 400, Code: "validation_error", Message: `limit is too large`}}
 		c := musicClient(t, e)
-		rec := c.do("GET", "/playlists/rock_anthems/suggestions?knobs.taste_vs_crowd=1", "")
-		if rec.Code != 400 || !strings.Contains(rec.Body.String(), "not offered by playlist_add") {
+		rec := c.do("GET", "/playlists/rock_anthems/suggestions", "")
+		if rec.Code != 400 || !strings.Contains(rec.Body.String(), "limit is too large") {
 			t.Errorf("%d %s", rec.Code, rec.Body)
 		}
 	})
@@ -306,4 +355,76 @@ func (f *flakyPush) PushSchema(context.Context, []byte, bool) (*walrus.SchemaRes
 		return nil, errors.New("connection refused")
 	}
 	return &walrus.SchemaResult{OK: true, Version: 1}, nil
+}
+
+func TestAddingASongTellsWalrusOnce(t *testing.T) {
+	e := &fakeEngine{}
+	c := musicClient(t, e)
+	post := func(track string) int {
+		return c.do("POST", "/playlists/quiet_evenings/tracks", `{"trackId":"`+track+`"}`).Code
+	}
+	if post("blowin_wind") != 204 || post("blowin_wind") != 204 { // the second changes nothing
+		t.Fatal("add failed")
+	}
+	c.srv.WaitEvents()
+	if len(e.events) != 1 {
+		t.Fatalf("events = %+v", e.events)
+	}
+	ev := e.events[0]
+	if ev.User != "maya" || ev.Type != "add_to_playlist" || ev.Target != "blowin_wind" || ev.Fields["playlist_id"] != "maya:quiet_evenings" || ev.TS == "" {
+		t.Errorf("event = %+v", ev)
+	}
+
+	// a song that was already there, and a song that does not exist, report nothing
+	post("holocene")
+	post("no_such_song")
+	c.srv.WaitEvents()
+	if len(e.events) != 1 {
+		t.Errorf("events = %+v", e.events)
+	}
+}
+
+func TestALostEventDoesNotFailTheRequest(t *testing.T) {
+	e := &fakeEngine{evErr: errors.New("connection refused")}
+	c := musicClient(t, e)
+	if rec := c.do("POST", "/playlists/quiet_evenings/tracks", `{"trackId":"blowin_wind"}`); rec.Code != 204 {
+		t.Fatalf("%d %s", rec.Code, rec.Body)
+	}
+	c.srv.WaitEvents()
+	if got, _ := c.srv.store.Playlist("maya", "quiet_evenings"); !slices.Contains(got.TrackIDs, "blowin_wind") {
+		t.Error("the song should still be in the playlist")
+	}
+
+	noEngine := musicClient(t, nil)
+	if rec := noEngine.do("POST", "/playlists/quiet_evenings/tracks", `{"trackId":"blowin_wind"}`); rec.Code != 204 {
+		t.Errorf("without an engine: %d", rec.Code)
+	}
+}
+
+func TestCommunityEventsAreOtherPeoplesPlaylists(t *testing.T) {
+	now := time.Date(2026, 10, 4, 12, 0, 0, 0, time.UTC)
+	events := CommunityEvents(now)
+	total := 0
+	for _, p := range communityPlaylists {
+		total += len(p)
+	}
+	if len(events) != total {
+		t.Fatalf("%d events for %d songs", len(events), total)
+	}
+	groups := map[string]bool{}
+	for _, ev := range events {
+		if ev.Type != "add_to_playlist" || !strings.HasPrefix(ev.User, "community_") || ev.Fields["playlist_id"] != ev.User+":"+ev.User {
+			t.Fatalf("event = %+v", ev)
+		}
+		if _, ok := TrackByID(ev.Target); !ok {
+			t.Errorf("%s is not in the library", ev.Target)
+		}
+		if ts, err := time.Parse(time.RFC3339, ev.TS); err != nil || !ts.Before(now) {
+			t.Errorf("ts = %q", ev.TS)
+		}
+		groups[ev.Fields["playlist_id"]] = true
+	}
+	if len(groups) != len(communityPlaylists) {
+		t.Errorf("%d playlists", len(groups))
+	}
 }

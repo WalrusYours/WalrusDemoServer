@@ -196,6 +196,73 @@ func (c *Client) UpsertEntities(ctx context.Context, entities []Entity) (*Ingest
 	return &out, nil
 }
 
+type KnobOption struct {
+	Value float64 `json:"value"`
+	Label string  `json:"label"`
+}
+
+type Knob struct {
+	ID        string       `json:"id"`
+	Kind      string       `json:"kind"`
+	Label     string       `json:"label"`
+	Low       string       `json:"low"`
+	High      string       `json:"high"`
+	Group     string       `json:"group"`
+	Help      string       `json:"help"`
+	Min       float64      `json:"min"`
+	Max       float64      `json:"max"`
+	Default   float64      `json:"default"`
+	DependsOn string       `json:"depends_on"`
+	Options   []KnobOption `json:"options"`
+	// Recommenders are the recommenders that offer this knob.
+	Recommenders []string `json:"recommenders"`
+}
+
+type Preset struct {
+	ID    string             `json:"id"`
+	Knobs map[string]float64 `json:"knobs"`
+}
+
+type KnobCatalog struct {
+	Knobs   []Knob   `json:"knobs"`
+	Presets []Preset `json:"presets"`
+}
+
+// Knobs returns the knobs and presets of the active schema, with texts in the given locale (the
+// schema's own when empty or not offered).
+func (c *Client) Knobs(ctx context.Context, locale string) (*KnobCatalog, error) {
+	path := "/v1/schema/knobs"
+	if locale != "" {
+		path += "?locale=" + url.QueryEscape(locale)
+	}
+	var out KnobCatalog
+	if err := c.do(ctx, http.MethodGet, path, "", nil, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+type Interaction struct {
+	User   string            `json:"user"`
+	Type   string            `json:"type"`
+	Target string            `json:"target"`
+	TS     string            `json:"ts,omitempty"`
+	Fields map[string]string `json:"fields,omitempty"`
+}
+
+// SendInteractions sends one batch of events (up to 1000). Events the engine rejects come back in
+// IngestResult.Rejected.
+func (c *Client) SendInteractions(ctx context.Context, events []Interaction) (*IngestResult, error) {
+	var out IngestResult
+	body := struct {
+		Interactions []Interaction `json:"interactions"`
+	}{events}
+	if err := c.do(ctx, http.MethodPost, "/v1/interactions", "application/json", body, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 // EntityCounts returns how many entities of each type the engine holds.
 func (c *Client) EntityCounts(ctx context.Context) (map[string]int, error) {
 	var out struct {

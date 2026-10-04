@@ -46,6 +46,7 @@ func TrackEntities() []walrus.Entity {
 	for i, t := range catalogue {
 		dance, acoustic, tempo := features(t)
 		out[i] = walrus.Entity{Entity: "track", ID: t.ID, Attributes: map[string]any{
+			"title":        t.Title,
 			"artist_id":    slug(t.Artist),
 			"album_id":     fmt.Sprintf("%s_%d", slug(t.Artist), t.Year),
 			"genres":       t.Genres,

@@ -62,9 +62,14 @@ func (s *Server) addToPlaylist(w http.ResponseWriter, r *http.Request, u User) {
 	if !decode(w, r, &in) {
 		return
 	}
-	if err := s.store.AddTrack(u.ID, r.PathValue("id"), in.TrackID); err != nil {
+	playlistID := r.PathValue("id")
+	added, err := s.store.AddTrack(u.ID, playlistID, in.TrackID)
+	if err != nil {
 		musicError(w, err)
 		return
+	}
+	if added {
+		s.report(playlistAdd(u.ID, playlistID, in.TrackID, s.now()))
 	}
 	w.WriteHeader(http.StatusNoContent)
 }
@@ -140,11 +145,21 @@ func (s *Server) playlistSuggestions(w http.ResponseWriter, r *http.Request, u U
 		knobs[id] = f
 	}
 
+	cat, ok := s.catalog(w, r)
+	if !ok {
+		return
+	}
+	chosen, err := tuneFor(cat, suggestRecommender, s.store.Profile(u.ID).Knobs, knobs)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
 	req := walrus.RecommendRequest{
 		User:    u.ID,
 		Items:   p.TrackIDs, // never nil: an empty playlist is a valid seed
 		Limit:   limit,
-		Knobs:   knobs,
+		Knobs:   chosen,
 		Explain: true,
 	}
 	if words := titleWords(p.Name); len(words) > 0 {

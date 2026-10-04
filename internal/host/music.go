@@ -115,23 +115,25 @@ func (s *Store) CreatePlaylist(userID, name string) (Playlist, error) {
 	return clonePlaylist(p), nil
 }
 
-// AddTrack appends a song to a playlist; adding one that is already there changes nothing.
-func (s *Store) AddTrack(userID, playlistID, trackID string) error {
+// AddTrack appends a song to a playlist and reports whether it was new; adding one that is
+// already there changes nothing.
+func (s *Store) AddTrack(userID, playlistID, trackID string) (added bool, err error) {
 	if _, ok := TrackByID(trackID); !ok {
-		return ErrNoTrack
+		return false, ErrNoTrack
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	ps := s.playlistsOf(userID)
 	for i := range ps {
 		if ps[i].ID == playlistID {
-			if !slices.Contains(ps[i].TrackIDs, trackID) {
-				ps[i].TrackIDs = append(ps[i].TrackIDs, trackID)
+			if slices.Contains(ps[i].TrackIDs, trackID) {
+				return false, nil
 			}
-			return nil
+			ps[i].TrackIDs = append(ps[i].TrackIDs, trackID)
+			return true, nil
 		}
 	}
-	return ErrNoPlaylist
+	return false, ErrNoPlaylist
 }
 
 func (s *Store) RemoveTrack(userID, playlistID, trackID string) error {

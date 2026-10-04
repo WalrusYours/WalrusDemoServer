@@ -1,9 +1,9 @@
 // Command seed-walrus fills a WALRUS engine with the demo library: it pushes the platform's schema,
-// then sends every artist and track. It can be run again at any time; entities are replaced, not
-// duplicated.
+// then sends every artist and track, and the other users' playlists as add_to_playlist events.
+// It can be run again at any time: entities are replaced, not duplicated.
 //
 //	WALRUS_URL  base URL of the engine (default http://localhost:8080)
-//	WALRUS_KEY  the key to send (required)
+//	WALRUS_KEY  the key to send (default: the dev key, for an engine on this machine)
 package main
 
 import (
@@ -25,7 +25,7 @@ func main() {
 	if url == "" {
 		url = "http://localhost:8080"
 	}
-	key := os.Getenv("WALRUS_KEY")
+	key := walrus.KeyFor(url, os.Getenv("WALRUS_KEY"))
 	if key == "" {
 		log.Fatal("set WALRUS_KEY to the engine's key")
 	}
@@ -57,6 +57,14 @@ func main() {
 		rejected += bad
 	}
 
+	events := host.CommunityEvents(time.Now())
+	sentEvents, badEvents, err := sendEvents(ctx, engine, events)
+	if err != nil {
+		log.Fatalf("send events: %v", err)
+	}
+	fmt.Printf("%-8s sent %d, stored %d, rejected %d\n", "events", len(events), sentEvents, badEvents)
+	rejected += badEvents
+
 	counts, err := engine.EntityCounts(ctx)
 	if err != nil {
 		log.Fatalf("read counts: %v", err)
@@ -72,6 +80,22 @@ func send(ctx context.Context, engine *walrus.Client, entities []walrus.Entity) 
 	for start := 0; start < len(entities); start += batchSize {
 		end := min(start+batchSize, len(entities))
 		res, err := engine.UpsertEntities(ctx, entities[start:end])
+		if err != nil {
+			return accepted, rejected, err
+		}
+		accepted += res.Accepted
+		rejected += len(res.Rejected)
+		for _, r := range res.Rejected {
+			fmt.Printf("  rejected %s %s: %s\n", r.Entity, r.ID, r.Error)
+		}
+	}
+	return accepted, rejected, nil
+}
+
+func sendEvents(ctx context.Context, engine *walrus.Client, events []walrus.Interaction) (accepted, rejected int, err error) {
+	for start := 0; start < len(events); start += batchSize {
+		end := min(start+batchSize, len(events))
+		res, err := engine.SendInteractions(ctx, events[start:end])
 		if err != nil {
 			return accepted, rejected, err
 		}

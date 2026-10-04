@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -18,6 +19,7 @@ type Server struct {
 	cors   string // allowed origin for browsers calling directly; empty when behind the nginx proxy
 	mux    *http.ServeMux
 	engine Engine // WALRUS; nil when not configured
+	events sync.WaitGroup
 }
 
 // NewServer wires the routes. corsOrigin may be empty.
@@ -38,6 +40,7 @@ func NewServer(store *Store, corsOrigin string, opts ...Option) *Server {
 	s.mux.HandleFunc("GET /posts/{id}", s.auth(s.getPost))
 	s.mux.HandleFunc("GET /posts/{id}/related", s.auth(s.relatedPosts))
 	s.routeMusic()
+	s.routeKnobs()
 	for _, o := range opts {
 		o(s)
 	}

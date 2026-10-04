@@ -29,7 +29,7 @@ func TestTheLibraryHasAHundredTracksWithUniqueIDs(t *testing.T) {
 }
 
 func TestTrackEntitiesCarryEveryAttributeTheSchemaNeeds(t *testing.T) {
-	want := []string{"artist_id", "album_id", "genres", "language", "explicit", "release_date", "duration_ms",
+	want := []string{"title", "artist_id", "album_id", "genres", "language", "explicit", "release_date", "duration_ms",
 		"available_in", "energy", "valence", "danceability", "acousticness", "tempo"}
 	ents := TrackEntities()
 	if len(ents) != len(catalogue) {
